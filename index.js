@@ -4,6 +4,7 @@ const morgan = require('morgan')
 const cors = require('cors')
 
 app.use(express.json())
+app.use(express.static('build'))
 app.use(morgan('tiny'))
 app.use(cors())
 
@@ -51,6 +52,21 @@ app.get('/api/persons/:id', (request, response) => {
     } else {
         response.status(404).end()
     }
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const body = request.body
+    const myid = body.id
+    persons = persons.filter(per => per.id !== myid)
+    
+    const person = {
+        id: myid,
+        name: body.name,        
+        number: body.number.toString()
+    }
+    persons = persons.concat(person)
+    response.json(persons)
+    response.status(200).end()
 })
 
 
