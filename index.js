@@ -49,25 +49,19 @@ app.get('/api/persons/:id', (request, response, next) => {
     // }
 })
 
-app.put('/api/persons/:id', morgan(':body'), (request, response) => {
+app.put('/api/persons/:id', morgan(':body'), (request, response, next) => {
     const body = request.body
     const ent = {
         name: body.name,
         number: body.number
     }
-    Entry.findByIdAndUpdate(request.params.id, ent, {new:true}, (error,data) =>{
-        if(error){
-            console.log('lol')
-            throw error
-        } 
-        else {
-            console.log('succes!!')
-        }
-    })
-    
-    Entry.find({}).then(entries => {
-        response.json(entries)
-    })
+    Entry.findByIdAndUpdate(request.params.id, ent, {new:true,runValidators: true, context: 'query' })
+        .then(results => {
+            Entry.find({}).then(entries => {
+                response.json(entries)
+            })
+        })
+        .catch(error => next(error))
 })
 
 
@@ -124,7 +118,7 @@ app.delete('/api/persons/:id', (request, response) => {
     
 // })
 
-app.post('/api/persons', morgan(':body'), (request,response) => {
+app.post('/api/persons', morgan(':body'), (request,response, next) => {
     const body = request.body
 
     if(!body.name) {
